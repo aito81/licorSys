@@ -29,7 +29,7 @@ public class JpaUsuario extends UsuarioJpaController {
 		//String password = "'" + Crypto.encriptarPass(pass)+ "'";
 		//password = pass;
 		try {
-			String sql = "select * from usuario where descripcion = ?1 and clave = ?2" ;
+			String sql = "select * from usuario where alias = ?1 and clave = ?2" ;
 			Query q = em.createNativeQuery(sql);
 			q.setParameter(1, user);
 			q.setParameter(2, pass);
@@ -57,7 +57,7 @@ public class JpaUsuario extends UsuarioJpaController {
             javax.persistence.criteria.CriteriaBuilder cb = em.getCriteriaBuilder();
             javax.persistence.criteria.CriteriaQuery<Usuario> cq = cb.createQuery(Usuario.class);
             javax.persistence.criteria.Root<Usuario> u = cq.from(Usuario.class);
-            cq.where(cb.equal(u.get("descripcion"), user));
+            cq.where(cb.equal(u.get("alias"), user));
             Query q = em.createQuery(cq).setHint("eclipselink.refresh", true).setMaxResults(1);
             usuario = (Usuario) q.getSingleResult();
     	} catch (Exception ex) {

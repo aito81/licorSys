@@ -29,7 +29,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @NamedQueries({
     @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u")
     , @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario")
-    , @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave")})
+    , @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave")
+    , @NamedQuery(name = "Usuario.findByAlias", query = "SELECT u FROM Usuario u WHERE u.alias = :alias")})
 public class Usuario implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -41,6 +42,9 @@ public class Usuario implements Serializable {
     @Basic(optional = false)
     @Column(name = "clave")
     private String clave;
+    @Basic(optional = false)
+    @Column(name = "alias")
+    private String alias;
     @JoinColumn(name = "persona", referencedColumnName = "persona")
     @ManyToOne(optional = false)
     private Persona persona;
@@ -52,9 +56,10 @@ public class Usuario implements Serializable {
         this.usuario = usuario;
     }
 
-    public Usuario(Integer usuario, String clave) {
+    public Usuario(Integer usuario, String clave, String alias) {
         this.usuario = usuario;
         this.clave = clave;
+        this.alias = alias;
     }
 
     public Integer getUsuario() {
@@ -71,6 +76,14 @@ public class Usuario implements Serializable {
 
     public void setClave(String clave) {
         this.clave = clave;
+    }
+
+    public String getAlias() {
+        return alias;
+    }
+
+    public void setAlias(String alias) {
+        this.alias = alias;
     }
 
     public Persona getPersona() {
