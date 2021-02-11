@@ -70,6 +70,7 @@ public class Main extends HorizontalLayout {
 		
 		
 		addHiddenView(PrincipalView.class);
+		addHiddenView(AltaPersonaView.class);
 		/*addHiddenView(PersonaAbmView.class);
 		addHiddenView(AltaPersonaView.class);
 		addHiddenView(AltaReunionView.class);

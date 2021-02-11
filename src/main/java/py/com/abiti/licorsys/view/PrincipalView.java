@@ -15,6 +15,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 
+import py.com.abiti.licorsys.LicorSysUI;
 import py.com.abiti.licorsys.util.ViewConfig;
 
 
@@ -80,6 +81,8 @@ public class PrincipalView extends CustomComponent implements View {
 		btn6.addClickListener(Event -> MiesysUI.getCurrent().getNavigator().navigateTo("hanAlta"));
 		btn7.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("hanPersona"));
 		*/
+		
+		btn1.addClickListener(e-> LicorSysUI.getCurrent().getNavigator().navigateTo("alta"));
 		datosLayout.addComponent(botonLayout);
 		datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
 			
@@ -157,7 +160,7 @@ public class PrincipalView extends CustomComponent implements View {
 		
 		// btn1
 		btn1 = new Button();
-		btn1.setCaption("Consulta de Personas");
+		btn1.setCaption("Alta de Persona");
 		//btn1.setImmediate(true);
 		btn1.setWidth("-1px");
 		btn1.setHeight("-1px");
