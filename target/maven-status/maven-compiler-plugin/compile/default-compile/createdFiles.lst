@@ -17,6 +17,7 @@ py\com\abiti\licorsys\util\PageTitleUpdater.class
 py\com\abiti\licorsys\util\ViewConfig$CreateMode.class
 py\com\abiti\licorsys\view\LoginView$1.class
 py\com\abiti\licorsys\controller\exceptions\IllegalOrphanException.class
+py\com\abiti\licorsys\view\AltaPersonaView.class
 py\com\abiti\licorsys\util\Broadcaster$1.class
 py\com\abiti\licorsys\util\LazyProvider.class
 py\com\abiti\licorsys\controller\PersonaJpaController.class
