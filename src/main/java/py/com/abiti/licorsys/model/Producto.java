@@ -6,28 +6,32 @@
 package py.com.abiti.licorsys.model;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
-import javax.xml.bind.annotation.XmlRootElement;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 /**
  *
- * @author Santi
+ * @author matia
  */
 @Entity
 @Table(name = "producto")
-@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Producto.findAll", query = "SELECT p FROM Producto p")
-    , @NamedQuery(name = "Producto.findByProducto", query = "SELECT p FROM Producto p WHERE p.producto = :producto")
-    , @NamedQuery(name = "Producto.findByDescripcion", query = "SELECT p FROM Producto p WHERE p.descripcion = :descripcion")})
+    @NamedQuery(name = "Producto.findAll", query = "SELECT p FROM Producto p"),
+    @NamedQuery(name = "Producto.findByProducto", query = "SELECT p FROM Producto p WHERE p.producto = :producto"),
+    @NamedQuery(name = "Producto.findByPrecio", query = "SELECT p FROM Producto p WHERE p.precio = :precio"),
+    @NamedQuery(name = "Producto.findByFechaVencimiento", query = "SELECT p FROM Producto p WHERE p.fechaVencimiento = :fechaVencimiento")})
 public class Producto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,8 +41,15 @@ public class Producto implements Serializable {
     @Column(name = "producto")
     private Integer producto;
     @Basic(optional = false)
-    @Column(name = "descripcion")
-    private String descripcion;
+    @Column(name = "precio")
+    private double precio;
+    @Basic(optional = false)
+    @Column(name = "fecha_vencimiento")
+    @Temporal(TemporalType.DATE)
+    private Date fechaVencimiento;
+    @JoinColumn(name = "tipo_producto", referencedColumnName = "tipo_producto")
+    @ManyToOne(optional = false)
+    private TipoProducto tipoProducto;
 
     public Producto() {
     }
@@ -47,9 +58,10 @@ public class Producto implements Serializable {
         this.producto = producto;
     }
 
-    public Producto(Integer producto, String descripcion) {
+    public Producto(Integer producto, double precio, Date fechaVencimiento) {
         this.producto = producto;
-        this.descripcion = descripcion;
+        this.precio = precio;
+        this.fechaVencimiento = fechaVencimiento;
     }
 
     public Integer getProducto() {
@@ -60,12 +72,28 @@ public class Producto implements Serializable {
         this.producto = producto;
     }
 
-    public String getDescripcion() {
-        return descripcion;
+    public double getPrecio() {
+        return precio;
     }
 
-    public void setDescripcion(String descripcion) {
-        this.descripcion = descripcion;
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
+
+    public Date getFechaVencimiento() {
+        return fechaVencimiento;
+    }
+
+    public void setFechaVencimiento(Date fechaVencimiento) {
+        this.fechaVencimiento = fechaVencimiento;
+    }
+
+    public TipoProducto getTipoProducto() {
+        return tipoProducto;
+    }
+
+    public void setTipoProducto(TipoProducto tipoProducto) {
+        this.tipoProducto = tipoProducto;
     }
 
     @Override

@@ -19,7 +19,7 @@ import py.com.abiti.licorsys.model.Usuario;
 
 /**
  *
- * @author Santi
+ * @author matia
  */
 public class UsuarioJpaController implements Serializable {
 

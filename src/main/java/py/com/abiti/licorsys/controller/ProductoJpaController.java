@@ -15,10 +15,11 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.abiti.licorsys.controller.exceptions.NonexistentEntityException;
 import py.com.abiti.licorsys.model.Producto;
+import py.com.abiti.licorsys.model.TipoProducto;
 
 /**
  *
- * @author Santi
+ * @author matia
  */
 public class ProductoJpaController implements Serializable {
 
@@ -36,7 +37,16 @@ public class ProductoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            TipoProducto tipoProducto = producto.getTipoProducto();
+            if (tipoProducto != null) {
+                tipoProducto = em.getReference(tipoProducto.getClass(), tipoProducto.getTipoProducto());
+                producto.setTipoProducto(tipoProducto);
+            }
             em.persist(producto);
+            if (tipoProducto != null) {
+                tipoProducto.getProductoList().add(producto);
+                tipoProducto = em.merge(tipoProducto);
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +60,22 @@ public class ProductoJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Producto persistentProducto = em.find(Producto.class, producto.getProducto());
+            TipoProducto tipoProductoOld = persistentProducto.getTipoProducto();
+            TipoProducto tipoProductoNew = producto.getTipoProducto();
+            if (tipoProductoNew != null) {
+                tipoProductoNew = em.getReference(tipoProductoNew.getClass(), tipoProductoNew.getTipoProducto());
+                producto.setTipoProducto(tipoProductoNew);
+            }
             producto = em.merge(producto);
+            if (tipoProductoOld != null && !tipoProductoOld.equals(tipoProductoNew)) {
+                tipoProductoOld.getProductoList().remove(producto);
+                tipoProductoOld = em.merge(tipoProductoOld);
+            }
+            if (tipoProductoNew != null && !tipoProductoNew.equals(tipoProductoOld)) {
+                tipoProductoNew.getProductoList().add(producto);
+                tipoProductoNew = em.merge(tipoProductoNew);
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +104,11 @@ public class ProductoJpaController implements Serializable {
                 producto.getProducto();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The producto with id " + id + " no longer exists.", enfe);
+            }
+            TipoProducto tipoProducto = producto.getTipoProducto();
+            if (tipoProducto != null) {
+                tipoProducto.getProductoList().remove(producto);
+                tipoProducto = em.merge(tipoProducto);
             }
             em.remove(producto);
             em.getTransaction().commit();

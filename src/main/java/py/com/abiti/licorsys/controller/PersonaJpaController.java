@@ -21,7 +21,7 @@ import py.com.abiti.licorsys.model.Persona;
 
 /**
  *
- * @author Santi
+ * @author matia
  */
 public class PersonaJpaController implements Serializable {
 

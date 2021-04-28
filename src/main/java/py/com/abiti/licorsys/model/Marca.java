@@ -6,7 +6,9 @@
 package py.com.abiti.licorsys.model;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 /**
@@ -21,41 +24,43 @@ import javax.persistence.Table;
  * @author matia
  */
 @Entity
-@Table(name = "proveedor")
+@Table(name = "marca")
 @NamedQueries({
-    @NamedQuery(name = "Proveedor.findAll", query = "SELECT p FROM Proveedor p"),
-    @NamedQuery(name = "Proveedor.findByProveedor", query = "SELECT p FROM Proveedor p WHERE p.proveedor = :proveedor"),
-    @NamedQuery(name = "Proveedor.findByDescripcion", query = "SELECT p FROM Proveedor p WHERE p.descripcion = :descripcion")})
-public class Proveedor implements Serializable {
+    @NamedQuery(name = "Marca.findAll", query = "SELECT m FROM Marca m"),
+    @NamedQuery(name = "Marca.findByMarca", query = "SELECT m FROM Marca m WHERE m.marca = :marca"),
+    @NamedQuery(name = "Marca.findByDescripcion", query = "SELECT m FROM Marca m WHERE m.descripcion = :descripcion")})
+public class Marca implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "proveedor")
-    private Integer proveedor;
+    @Column(name = "marca")
+    private Integer marca;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "marca")
+    private List<TipoProducto> tipoProductoList;
 
-    public Proveedor() {
+    public Marca() {
     }
 
-    public Proveedor(Integer proveedor) {
-        this.proveedor = proveedor;
+    public Marca(Integer marca) {
+        this.marca = marca;
     }
 
-    public Proveedor(Integer proveedor, String descripcion) {
-        this.proveedor = proveedor;
+    public Marca(Integer marca, String descripcion) {
+        this.marca = marca;
         this.descripcion = descripcion;
     }
 
-    public Integer getProveedor() {
-        return proveedor;
+    public Integer getMarca() {
+        return marca;
     }
 
-    public void setProveedor(Integer proveedor) {
-        this.proveedor = proveedor;
+    public void setMarca(Integer marca) {
+        this.marca = marca;
     }
 
     public String getDescripcion() {
@@ -66,21 +71,29 @@ public class Proveedor implements Serializable {
         this.descripcion = descripcion;
     }
 
+    public List<TipoProducto> getTipoProductoList() {
+        return tipoProductoList;
+    }
+
+    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
+        this.tipoProductoList = tipoProductoList;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (proveedor != null ? proveedor.hashCode() : 0);
+        hash += (marca != null ? marca.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Proveedor)) {
+        if (!(object instanceof Marca)) {
             return false;
         }
-        Proveedor other = (Proveedor) object;
-        if ((this.proveedor == null && other.proveedor != null) || (this.proveedor != null && !this.proveedor.equals(other.proveedor))) {
+        Marca other = (Marca) object;
+        if ((this.marca == null && other.marca != null) || (this.marca != null && !this.marca.equals(other.marca))) {
             return false;
         }
         return true;
@@ -88,7 +101,7 @@ public class Proveedor implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.abiti.licorsys.model.Proveedor[ proveedor=" + proveedor + " ]";
+        return "py.com.abiti.licorsys.model.Marca[ marca=" + marca + " ]";
     }
     
 }

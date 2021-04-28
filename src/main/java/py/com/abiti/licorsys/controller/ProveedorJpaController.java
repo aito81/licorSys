@@ -18,7 +18,7 @@ import py.com.abiti.licorsys.model.Proveedor;
 
 /**
  *
- * @author Santi
+ * @author matia
  */
 public class ProveedorJpaController implements Serializable {
 
