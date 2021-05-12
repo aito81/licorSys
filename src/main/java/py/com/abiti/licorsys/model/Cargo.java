@@ -26,44 +26,44 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Santi
  */
 @Entity
-@Table(name = "marca")
+@Table(name = "cargo")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Marca.findAll", query = "SELECT m FROM Marca m")
-    , @NamedQuery(name = "Marca.findByMarca", query = "SELECT m FROM Marca m WHERE m.marca = :marca")
-    , @NamedQuery(name = "Marca.findByDescripcion", query = "SELECT m FROM Marca m WHERE m.descripcion = :descripcion")})
-public class Marca implements Serializable {
+    @NamedQuery(name = "Cargo.findAll", query = "SELECT c FROM Cargo c")
+    , @NamedQuery(name = "Cargo.findByCargo", query = "SELECT c FROM Cargo c WHERE c.cargo = :cargo")
+    , @NamedQuery(name = "Cargo.findByDescripcion", query = "SELECT c FROM Cargo c WHERE c.descripcion = :descripcion")})
+public class Cargo implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "marca")
-    private Integer marca;
+    @Column(name = "cargo")
+    private Integer cargo;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "marca")
-    private List<TipoProducto> tipoProductoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cargo")
+    private List<Empleado> empleadoList;
 
-    public Marca() {
+    public Cargo() {
     }
 
-    public Marca(Integer marca) {
-        this.marca = marca;
+    public Cargo(Integer cargo) {
+        this.cargo = cargo;
     }
 
-    public Marca(Integer marca, String descripcion) {
-        this.marca = marca;
+    public Cargo(Integer cargo, String descripcion) {
+        this.cargo = cargo;
         this.descripcion = descripcion;
     }
 
-    public Integer getMarca() {
-        return marca;
+    public Integer getCargo() {
+        return cargo;
     }
 
-    public void setMarca(Integer marca) {
-        this.marca = marca;
+    public void setCargo(Integer cargo) {
+        this.cargo = cargo;
     }
 
     public String getDescripcion() {
@@ -75,29 +75,29 @@ public class Marca implements Serializable {
     }
 
     @XmlTransient
-    public List<TipoProducto> getTipoProductoList() {
-        return tipoProductoList;
+    public List<Empleado> getEmpleadoList() {
+        return empleadoList;
     }
 
-    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
-        this.tipoProductoList = tipoProductoList;
+    public void setEmpleadoList(List<Empleado> empleadoList) {
+        this.empleadoList = empleadoList;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (marca != null ? marca.hashCode() : 0);
+        hash += (cargo != null ? cargo.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Marca)) {
+        if (!(object instanceof Cargo)) {
             return false;
         }
-        Marca other = (Marca) object;
-        if ((this.marca == null && other.marca != null) || (this.marca != null && !this.marca.equals(other.marca))) {
+        Cargo other = (Cargo) object;
+        if ((this.cargo == null && other.cargo != null) || (this.cargo != null && !this.cargo.equals(other.cargo))) {
             return false;
         }
         return true;
@@ -105,7 +105,7 @@ public class Marca implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.abiti.licorsys.model.Marca[ marca=" + marca + " ]";
+        return "py.com.abiti.licorsys.model.Cargo[ cargo=" + cargo + " ]";
     }
     
 }

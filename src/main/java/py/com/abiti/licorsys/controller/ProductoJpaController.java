@@ -6,20 +6,23 @@
 package py.com.abiti.licorsys.controller;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.abiti.licorsys.model.TipoProducto;
+import py.com.abiti.licorsys.model.Ingreso;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import py.com.abiti.licorsys.controller.exceptions.IllegalOrphanException;
 import py.com.abiti.licorsys.controller.exceptions.NonexistentEntityException;
 import py.com.abiti.licorsys.model.Producto;
-import py.com.abiti.licorsys.model.TipoProducto;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 public class ProductoJpaController implements Serializable {
 
@@ -33,6 +36,9 @@ public class ProductoJpaController implements Serializable {
     }
 
     public void create(Producto producto) {
+        if (producto.getIngresoList() == null) {
+            producto.setIngresoList(new ArrayList<Ingreso>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -42,10 +48,25 @@ public class ProductoJpaController implements Serializable {
                 tipoProducto = em.getReference(tipoProducto.getClass(), tipoProducto.getTipoProducto());
                 producto.setTipoProducto(tipoProducto);
             }
+            List<Ingreso> attachedIngresoList = new ArrayList<Ingreso>();
+            for (Ingreso ingresoListIngresoToAttach : producto.getIngresoList()) {
+                ingresoListIngresoToAttach = em.getReference(ingresoListIngresoToAttach.getClass(), ingresoListIngresoToAttach.getIngreso());
+                attachedIngresoList.add(ingresoListIngresoToAttach);
+            }
+            producto.setIngresoList(attachedIngresoList);
             em.persist(producto);
             if (tipoProducto != null) {
                 tipoProducto.getProductoList().add(producto);
                 tipoProducto = em.merge(tipoProducto);
+            }
+            for (Ingreso ingresoListIngreso : producto.getIngresoList()) {
+                Producto oldProductoOfIngresoListIngreso = ingresoListIngreso.getProducto();
+                ingresoListIngreso.setProducto(producto);
+                ingresoListIngreso = em.merge(ingresoListIngreso);
+                if (oldProductoOfIngresoListIngreso != null) {
+                    oldProductoOfIngresoListIngreso.getIngresoList().remove(ingresoListIngreso);
+                    oldProductoOfIngresoListIngreso = em.merge(oldProductoOfIngresoListIngreso);
+                }
             }
             em.getTransaction().commit();
         } finally {
@@ -55,7 +76,7 @@ public class ProductoJpaController implements Serializable {
         }
     }
 
-    public void edit(Producto producto) throws NonexistentEntityException, Exception {
+    public void edit(Producto producto) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -63,10 +84,31 @@ public class ProductoJpaController implements Serializable {
             Producto persistentProducto = em.find(Producto.class, producto.getProducto());
             TipoProducto tipoProductoOld = persistentProducto.getTipoProducto();
             TipoProducto tipoProductoNew = producto.getTipoProducto();
+            List<Ingreso> ingresoListOld = persistentProducto.getIngresoList();
+            List<Ingreso> ingresoListNew = producto.getIngresoList();
+            List<String> illegalOrphanMessages = null;
+            for (Ingreso ingresoListOldIngreso : ingresoListOld) {
+                if (!ingresoListNew.contains(ingresoListOldIngreso)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Ingreso " + ingresoListOldIngreso + " since its producto field is not nullable.");
+                }
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
+            }
             if (tipoProductoNew != null) {
                 tipoProductoNew = em.getReference(tipoProductoNew.getClass(), tipoProductoNew.getTipoProducto());
                 producto.setTipoProducto(tipoProductoNew);
             }
+            List<Ingreso> attachedIngresoListNew = new ArrayList<Ingreso>();
+            for (Ingreso ingresoListNewIngresoToAttach : ingresoListNew) {
+                ingresoListNewIngresoToAttach = em.getReference(ingresoListNewIngresoToAttach.getClass(), ingresoListNewIngresoToAttach.getIngreso());
+                attachedIngresoListNew.add(ingresoListNewIngresoToAttach);
+            }
+            ingresoListNew = attachedIngresoListNew;
+            producto.setIngresoList(ingresoListNew);
             producto = em.merge(producto);
             if (tipoProductoOld != null && !tipoProductoOld.equals(tipoProductoNew)) {
                 tipoProductoOld.getProductoList().remove(producto);
@@ -75,6 +117,17 @@ public class ProductoJpaController implements Serializable {
             if (tipoProductoNew != null && !tipoProductoNew.equals(tipoProductoOld)) {
                 tipoProductoNew.getProductoList().add(producto);
                 tipoProductoNew = em.merge(tipoProductoNew);
+            }
+            for (Ingreso ingresoListNewIngreso : ingresoListNew) {
+                if (!ingresoListOld.contains(ingresoListNewIngreso)) {
+                    Producto oldProductoOfIngresoListNewIngreso = ingresoListNewIngreso.getProducto();
+                    ingresoListNewIngreso.setProducto(producto);
+                    ingresoListNewIngreso = em.merge(ingresoListNewIngreso);
+                    if (oldProductoOfIngresoListNewIngreso != null && !oldProductoOfIngresoListNewIngreso.equals(producto)) {
+                        oldProductoOfIngresoListNewIngreso.getIngresoList().remove(ingresoListNewIngreso);
+                        oldProductoOfIngresoListNewIngreso = em.merge(oldProductoOfIngresoListNewIngreso);
+                    }
+                }
             }
             em.getTransaction().commit();
         } catch (Exception ex) {
@@ -93,7 +146,7 @@ public class ProductoJpaController implements Serializable {
         }
     }
 
-    public void destroy(Integer id) throws NonexistentEntityException {
+    public void destroy(Integer id) throws IllegalOrphanException, NonexistentEntityException {
         EntityManager em = null;
         try {
             em = getEntityManager();
@@ -104,6 +157,17 @@ public class ProductoJpaController implements Serializable {
                 producto.getProducto();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The producto with id " + id + " no longer exists.", enfe);
+            }
+            List<String> illegalOrphanMessages = null;
+            List<Ingreso> ingresoListOrphanCheck = producto.getIngresoList();
+            for (Ingreso ingresoListOrphanCheckIngreso : ingresoListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Producto (" + producto + ") cannot be destroyed since the Ingreso " + ingresoListOrphanCheckIngreso + " in its ingresoList field has a non-nullable producto field.");
+            }
+            if (illegalOrphanMessages != null) {
+                throw new IllegalOrphanException(illegalOrphanMessages);
             }
             TipoProducto tipoProducto = producto.getTipoProducto();
             if (tipoProducto != null) {

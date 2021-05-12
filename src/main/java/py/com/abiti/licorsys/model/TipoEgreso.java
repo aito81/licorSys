@@ -26,44 +26,44 @@ import javax.xml.bind.annotation.XmlTransient;
  * @author Santi
  */
 @Entity
-@Table(name = "marca")
+@Table(name = "tipo_egreso")
 @XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Marca.findAll", query = "SELECT m FROM Marca m")
-    , @NamedQuery(name = "Marca.findByMarca", query = "SELECT m FROM Marca m WHERE m.marca = :marca")
-    , @NamedQuery(name = "Marca.findByDescripcion", query = "SELECT m FROM Marca m WHERE m.descripcion = :descripcion")})
-public class Marca implements Serializable {
+    @NamedQuery(name = "TipoEgreso.findAll", query = "SELECT t FROM TipoEgreso t")
+    , @NamedQuery(name = "TipoEgreso.findByTipoEgreso", query = "SELECT t FROM TipoEgreso t WHERE t.tipoEgreso = :tipoEgreso")
+    , @NamedQuery(name = "TipoEgreso.findByDescripcion", query = "SELECT t FROM TipoEgreso t WHERE t.descripcion = :descripcion")})
+public class TipoEgreso implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "marca")
-    private Integer marca;
+    @Column(name = "tipo_egreso")
+    private Integer tipoEgreso;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "marca")
-    private List<TipoProducto> tipoProductoList;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tipoEgreso")
+    private List<Egreso> egresoList;
 
-    public Marca() {
+    public TipoEgreso() {
     }
 
-    public Marca(Integer marca) {
-        this.marca = marca;
+    public TipoEgreso(Integer tipoEgreso) {
+        this.tipoEgreso = tipoEgreso;
     }
 
-    public Marca(Integer marca, String descripcion) {
-        this.marca = marca;
+    public TipoEgreso(Integer tipoEgreso, String descripcion) {
+        this.tipoEgreso = tipoEgreso;
         this.descripcion = descripcion;
     }
 
-    public Integer getMarca() {
-        return marca;
+    public Integer getTipoEgreso() {
+        return tipoEgreso;
     }
 
-    public void setMarca(Integer marca) {
-        this.marca = marca;
+    public void setTipoEgreso(Integer tipoEgreso) {
+        this.tipoEgreso = tipoEgreso;
     }
 
     public String getDescripcion() {
@@ -75,29 +75,29 @@ public class Marca implements Serializable {
     }
 
     @XmlTransient
-    public List<TipoProducto> getTipoProductoList() {
-        return tipoProductoList;
+    public List<Egreso> getEgresoList() {
+        return egresoList;
     }
 
-    public void setTipoProductoList(List<TipoProducto> tipoProductoList) {
-        this.tipoProductoList = tipoProductoList;
+    public void setEgresoList(List<Egreso> egresoList) {
+        this.egresoList = egresoList;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (marca != null ? marca.hashCode() : 0);
+        hash += (tipoEgreso != null ? tipoEgreso.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Marca)) {
+        if (!(object instanceof TipoEgreso)) {
             return false;
         }
-        Marca other = (Marca) object;
-        if ((this.marca == null && other.marca != null) || (this.marca != null && !this.marca.equals(other.marca))) {
+        TipoEgreso other = (TipoEgreso) object;
+        if ((this.tipoEgreso == null && other.tipoEgreso != null) || (this.tipoEgreso != null && !this.tipoEgreso.equals(other.tipoEgreso))) {
             return false;
         }
         return true;
@@ -105,7 +105,7 @@ public class Marca implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.abiti.licorsys.model.Marca[ marca=" + marca + " ]";
+        return "py.com.abiti.licorsys.model.TipoEgreso[ tipoEgreso=" + tipoEgreso + " ]";
     }
     
 }

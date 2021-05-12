@@ -20,17 +20,20 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 @Entity
 @Table(name = "tipo_producto")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "TipoProducto.findAll", query = "SELECT t FROM TipoProducto t"),
-    @NamedQuery(name = "TipoProducto.findByTipoProducto", query = "SELECT t FROM TipoProducto t WHERE t.tipoProducto = :tipoProducto"),
-    @NamedQuery(name = "TipoProducto.findByDescripcion", query = "SELECT t FROM TipoProducto t WHERE t.descripcion = :descripcion")})
+    @NamedQuery(name = "TipoProducto.findAll", query = "SELECT t FROM TipoProducto t")
+    , @NamedQuery(name = "TipoProducto.findByTipoProducto", query = "SELECT t FROM TipoProducto t WHERE t.tipoProducto = :tipoProducto")
+    , @NamedQuery(name = "TipoProducto.findByDescripcion", query = "SELECT t FROM TipoProducto t WHERE t.descripcion = :descripcion")})
 public class TipoProducto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,14 +45,14 @@ public class TipoProducto implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tipoProducto")
+    private List<Producto> productoList;
     @JoinColumn(name = "marca", referencedColumnName = "marca")
     @ManyToOne(optional = false)
     private Marca marca;
-    @JoinColumn(name = "tama\u00f1o", referencedColumnName = "tama\u00f1o")
+    @JoinColumn(name = "tamanho", referencedColumnName = "tamanho")
     @ManyToOne(optional = false)
-    private Tamaño tamaño;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tipoProducto")
-    private List<Producto> productoList;
+    private Tamanho tamanho;
 
     public TipoProducto() {
     }
@@ -79,6 +82,15 @@ public class TipoProducto implements Serializable {
         this.descripcion = descripcion;
     }
 
+    @XmlTransient
+    public List<Producto> getProductoList() {
+        return productoList;
+    }
+
+    public void setProductoList(List<Producto> productoList) {
+        this.productoList = productoList;
+    }
+
     public Marca getMarca() {
         return marca;
     }
@@ -87,20 +99,12 @@ public class TipoProducto implements Serializable {
         this.marca = marca;
     }
 
-    public Tamaño getTamaño() {
-        return tamaño;
+    public Tamanho getTamanho() {
+        return tamanho;
     }
 
-    public void setTamaño(Tamaño tamaño) {
-        this.tamaño = tamaño;
-    }
-
-    public List<Producto> getProductoList() {
-        return productoList;
-    }
-
-    public void setProductoList(List<Producto> productoList) {
-        this.productoList = productoList;
+    public void setTamanho(Tamanho tamanho) {
+        this.tamanho = tamanho;
     }
 
     @Override

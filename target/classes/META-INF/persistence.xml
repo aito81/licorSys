@@ -6,6 +6,9 @@
     <class>py.com.abiti.licorsys.model.Proveedor</class>
     <class>py.com.abiti.licorsys.model.Persona</class>
     <class>py.com.abiti.licorsys.model.Producto</class>
+    <class>py.com.abiti.licorsys.model.TipoProducto</class>
+    <class>py.com.abiti.licorsys.model.Marca</class>
+    <class>py.com.abiti.licorsys.model.Tamaño</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/BodegaDB"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>

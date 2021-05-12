@@ -6,7 +6,9 @@
 package py.com.abiti.licorsys.model;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,19 +18,23 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 @Entity
 @Table(name = "usuario")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u"),
-    @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario"),
-    @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave"),
-    @NamedQuery(name = "Usuario.findByAlias", query = "SELECT u FROM Usuario u WHERE u.alias = :alias")})
+    @NamedQuery(name = "Usuario.findAll", query = "SELECT u FROM Usuario u")
+    , @NamedQuery(name = "Usuario.findByUsuario", query = "SELECT u FROM Usuario u WHERE u.usuario = :usuario")
+    , @NamedQuery(name = "Usuario.findByClave", query = "SELECT u FROM Usuario u WHERE u.clave = :clave")
+    , @NamedQuery(name = "Usuario.findByAlias", query = "SELECT u FROM Usuario u WHERE u.alias = :alias")})
 public class Usuario implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -43,6 +49,8 @@ public class Usuario implements Serializable {
     @Basic(optional = false)
     @Column(name = "alias")
     private String alias;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "usuario")
+    private List<Egreso> egresoList;
     @JoinColumn(name = "persona", referencedColumnName = "persona")
     @ManyToOne(optional = false)
     private Persona persona;
@@ -82,6 +90,15 @@ public class Usuario implements Serializable {
 
     public void setAlias(String alias) {
         this.alias = alias;
+    }
+
+    @XmlTransient
+    public List<Egreso> getEgresoList() {
+        return egresoList;
+    }
+
+    public void setEgresoList(List<Egreso> egresoList) {
+        this.egresoList = egresoList;
     }
 
     public Persona getPersona() {

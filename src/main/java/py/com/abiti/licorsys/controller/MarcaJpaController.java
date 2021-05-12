@@ -21,7 +21,7 @@ import py.com.abiti.licorsys.model.Marca;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 public class MarcaJpaController implements Serializable {
 

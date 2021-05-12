@@ -18,54 +18,57 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 @Entity
-@Table(name = "tama\u00f1o")
+@Table(name = "tamanho")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Tama\u00f1o.findAll", query = "SELECT t FROM Tama\u00f1o t"),
-    @NamedQuery(name = "Tama\u00f1o.findByTama\u00f1o", query = "SELECT t FROM Tama\u00f1o t WHERE t.tama\u00f1o = :tama\u00f1o"),
-    @NamedQuery(name = "Tama\u00f1o.findByDescripcion", query = "SELECT t FROM Tama\u00f1o t WHERE t.descripcion = :descripcion"),
-    @NamedQuery(name = "Tama\u00f1o.findByMl", query = "SELECT t FROM Tama\u00f1o t WHERE t.ml = :ml")})
-public class Tamaño implements Serializable {
+    @NamedQuery(name = "Tamanho.findAll", query = "SELECT t FROM Tamanho t")
+    , @NamedQuery(name = "Tamanho.findByTamanho", query = "SELECT t FROM Tamanho t WHERE t.tamanho = :tamanho")
+    , @NamedQuery(name = "Tamanho.findByDescripcion", query = "SELECT t FROM Tamanho t WHERE t.descripcion = :descripcion")
+    , @NamedQuery(name = "Tamanho.findByMl", query = "SELECT t FROM Tamanho t WHERE t.ml = :ml")})
+public class Tamanho implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "tama\u00f1o")
-    private Integer tamaño;
+    @Column(name = "tamanho")
+    private Integer tamanho;
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
     @Basic(optional = false)
     @Column(name = "ml")
     private double ml;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tama\u00f1o")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tamanho")
     private List<TipoProducto> tipoProductoList;
 
-    public Tamaño() {
+    public Tamanho() {
     }
 
-    public Tamaño(Integer tamaño) {
-        this.tamaño = tamaño;
+    public Tamanho(Integer tamanho) {
+        this.tamanho = tamanho;
     }
 
-    public Tamaño(Integer tamaño, String descripcion, double ml) {
-        this.tamaño = tamaño;
+    public Tamanho(Integer tamanho, String descripcion, double ml) {
+        this.tamanho = tamanho;
         this.descripcion = descripcion;
         this.ml = ml;
     }
 
-    public Integer getTamaño() {
-        return tamaño;
+    public Integer getTamanho() {
+        return tamanho;
     }
 
-    public void setTamaño(Integer tamaño) {
-        this.tamaño = tamaño;
+    public void setTamanho(Integer tamanho) {
+        this.tamanho = tamanho;
     }
 
     public String getDescripcion() {
@@ -84,6 +87,7 @@ public class Tamaño implements Serializable {
         this.ml = ml;
     }
 
+    @XmlTransient
     public List<TipoProducto> getTipoProductoList() {
         return tipoProductoList;
     }
@@ -95,18 +99,18 @@ public class Tamaño implements Serializable {
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (tamaño != null ? tamaño.hashCode() : 0);
+        hash += (tamanho != null ? tamanho.hashCode() : 0);
         return hash;
     }
 
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Tamaño)) {
+        if (!(object instanceof Tamanho)) {
             return false;
         }
-        Tamaño other = (Tamaño) object;
-        if ((this.tamaño == null && other.tamaño != null) || (this.tamaño != null && !this.tamaño.equals(other.tamaño))) {
+        Tamanho other = (Tamanho) object;
+        if ((this.tamanho == null && other.tamanho != null) || (this.tamanho != null && !this.tamanho.equals(other.tamanho))) {
             return false;
         }
         return true;
@@ -114,7 +118,7 @@ public class Tamaño implements Serializable {
 
     @Override
     public String toString() {
-        return "py.com.abiti.licorsys.model.Tama\u00f1o[ tama\u00f1o=" + tamaño + " ]";
+        return "py.com.abiti.licorsys.model.Tamanho[ tamanho=" + tamanho + " ]";
     }
     
 }

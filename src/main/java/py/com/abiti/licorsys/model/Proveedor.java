@@ -6,6 +6,7 @@
 package py.com.abiti.licorsys.model;
 
 import java.io.Serializable;
+import java.util.List;
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -14,18 +15,22 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 @Entity
 @Table(name = "proveedor")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Proveedor.findAll", query = "SELECT p FROM Proveedor p"),
-    @NamedQuery(name = "Proveedor.findByProveedor", query = "SELECT p FROM Proveedor p WHERE p.proveedor = :proveedor"),
-    @NamedQuery(name = "Proveedor.findByDescripcion", query = "SELECT p FROM Proveedor p WHERE p.descripcion = :descripcion")})
+    @NamedQuery(name = "Proveedor.findAll", query = "SELECT p FROM Proveedor p")
+    , @NamedQuery(name = "Proveedor.findByProveedor", query = "SELECT p FROM Proveedor p WHERE p.proveedor = :proveedor")
+    , @NamedQuery(name = "Proveedor.findByDescripcion", query = "SELECT p FROM Proveedor p WHERE p.descripcion = :descripcion")})
 public class Proveedor implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -37,6 +42,8 @@ public class Proveedor implements Serializable {
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
+    @OneToMany(mappedBy = "proveedor")
+    private List<Egreso> egresoList;
 
     public Proveedor() {
     }
@@ -64,6 +71,15 @@ public class Proveedor implements Serializable {
 
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
+    }
+
+    @XmlTransient
+    public List<Egreso> getEgresoList() {
+        return egresoList;
+    }
+
+    public void setEgresoList(List<Egreso> egresoList) {
+        this.egresoList = egresoList;
     }
 
     @Override

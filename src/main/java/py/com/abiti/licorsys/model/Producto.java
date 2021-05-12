@@ -7,7 +7,9 @@ package py.com.abiti.licorsys.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -17,21 +19,25 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 @Entity
 @Table(name = "producto")
+@XmlRootElement
 @NamedQueries({
-    @NamedQuery(name = "Producto.findAll", query = "SELECT p FROM Producto p"),
-    @NamedQuery(name = "Producto.findByProducto", query = "SELECT p FROM Producto p WHERE p.producto = :producto"),
-    @NamedQuery(name = "Producto.findByPrecio", query = "SELECT p FROM Producto p WHERE p.precio = :precio"),
-    @NamedQuery(name = "Producto.findByFechaVencimiento", query = "SELECT p FROM Producto p WHERE p.fechaVencimiento = :fechaVencimiento")})
+    @NamedQuery(name = "Producto.findAll", query = "SELECT p FROM Producto p")
+    , @NamedQuery(name = "Producto.findByProducto", query = "SELECT p FROM Producto p WHERE p.producto = :producto")
+    , @NamedQuery(name = "Producto.findByPrecio", query = "SELECT p FROM Producto p WHERE p.precio = :precio")
+    , @NamedQuery(name = "Producto.findByFechaVencimiento", query = "SELECT p FROM Producto p WHERE p.fechaVencimiento = :fechaVencimiento")})
 public class Producto implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -50,6 +56,8 @@ public class Producto implements Serializable {
     @JoinColumn(name = "tipo_producto", referencedColumnName = "tipo_producto")
     @ManyToOne(optional = false)
     private TipoProducto tipoProducto;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "producto")
+    private List<Ingreso> ingresoList;
 
     public Producto() {
     }
@@ -94,6 +102,15 @@ public class Producto implements Serializable {
 
     public void setTipoProducto(TipoProducto tipoProducto) {
         this.tipoProducto = tipoProducto;
+    }
+
+    @XmlTransient
+    public List<Ingreso> getIngresoList() {
+        return ingresoList;
+    }
+
+    public void setIngresoList(List<Ingreso> ingresoList) {
+        this.ingresoList = ingresoList;
     }
 
     @Override

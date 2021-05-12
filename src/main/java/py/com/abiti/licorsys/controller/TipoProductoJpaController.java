@@ -11,7 +11,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import py.com.abiti.licorsys.model.Marca;
-import py.com.abiti.licorsys.model.Tamaño;
+import py.com.abiti.licorsys.model.Tamanho;
 import py.com.abiti.licorsys.model.Producto;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import py.com.abiti.licorsys.model.TipoProducto;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 public class TipoProductoJpaController implements Serializable {
 
@@ -49,10 +49,10 @@ public class TipoProductoJpaController implements Serializable {
                 marca = em.getReference(marca.getClass(), marca.getMarca());
                 tipoProducto.setMarca(marca);
             }
-            Tamaño tamaño = tipoProducto.getTamaño();
-            if (tamaño != null) {
-                tamaño = em.getReference(tamaño.getClass(), tamaño.getTamaño());
-                tipoProducto.setTamaño(tamaño);
+            Tamanho tamanho = tipoProducto.getTamanho();
+            if (tamanho != null) {
+                tamanho = em.getReference(tamanho.getClass(), tamanho.getTamanho());
+                tipoProducto.setTamanho(tamanho);
             }
             List<Producto> attachedProductoList = new ArrayList<Producto>();
             for (Producto productoListProductoToAttach : tipoProducto.getProductoList()) {
@@ -65,9 +65,9 @@ public class TipoProductoJpaController implements Serializable {
                 marca.getTipoProductoList().add(tipoProducto);
                 marca = em.merge(marca);
             }
-            if (tamaño != null) {
-                tamaño.getTipoProductoList().add(tipoProducto);
-                tamaño = em.merge(tamaño);
+            if (tamanho != null) {
+                tamanho.getTipoProductoList().add(tipoProducto);
+                tamanho = em.merge(tamanho);
             }
             for (Producto productoListProducto : tipoProducto.getProductoList()) {
                 TipoProducto oldTipoProductoOfProductoListProducto = productoListProducto.getTipoProducto();
@@ -94,8 +94,8 @@ public class TipoProductoJpaController implements Serializable {
             TipoProducto persistentTipoProducto = em.find(TipoProducto.class, tipoProducto.getTipoProducto());
             Marca marcaOld = persistentTipoProducto.getMarca();
             Marca marcaNew = tipoProducto.getMarca();
-            Tamaño tamañoOld = persistentTipoProducto.getTamaño();
-            Tamaño tamañoNew = tipoProducto.getTamaño();
+            Tamanho tamanhoOld = persistentTipoProducto.getTamanho();
+            Tamanho tamanhoNew = tipoProducto.getTamanho();
             List<Producto> productoListOld = persistentTipoProducto.getProductoList();
             List<Producto> productoListNew = tipoProducto.getProductoList();
             List<String> illegalOrphanMessages = null;
@@ -114,9 +114,9 @@ public class TipoProductoJpaController implements Serializable {
                 marcaNew = em.getReference(marcaNew.getClass(), marcaNew.getMarca());
                 tipoProducto.setMarca(marcaNew);
             }
-            if (tamañoNew != null) {
-                tamañoNew = em.getReference(tamañoNew.getClass(), tamañoNew.getTamaño());
-                tipoProducto.setTamaño(tamañoNew);
+            if (tamanhoNew != null) {
+                tamanhoNew = em.getReference(tamanhoNew.getClass(), tamanhoNew.getTamanho());
+                tipoProducto.setTamanho(tamanhoNew);
             }
             List<Producto> attachedProductoListNew = new ArrayList<Producto>();
             for (Producto productoListNewProductoToAttach : productoListNew) {
@@ -134,13 +134,13 @@ public class TipoProductoJpaController implements Serializable {
                 marcaNew.getTipoProductoList().add(tipoProducto);
                 marcaNew = em.merge(marcaNew);
             }
-            if (tamañoOld != null && !tamañoOld.equals(tamañoNew)) {
-                tamañoOld.getTipoProductoList().remove(tipoProducto);
-                tamañoOld = em.merge(tamañoOld);
+            if (tamanhoOld != null && !tamanhoOld.equals(tamanhoNew)) {
+                tamanhoOld.getTipoProductoList().remove(tipoProducto);
+                tamanhoOld = em.merge(tamanhoOld);
             }
-            if (tamañoNew != null && !tamañoNew.equals(tamañoOld)) {
-                tamañoNew.getTipoProductoList().add(tipoProducto);
-                tamañoNew = em.merge(tamañoNew);
+            if (tamanhoNew != null && !tamanhoNew.equals(tamanhoOld)) {
+                tamanhoNew.getTipoProductoList().add(tipoProducto);
+                tamanhoNew = em.merge(tamanhoNew);
             }
             for (Producto productoListNewProducto : productoListNew) {
                 if (!productoListOld.contains(productoListNewProducto)) {
@@ -198,10 +198,10 @@ public class TipoProductoJpaController implements Serializable {
                 marca.getTipoProductoList().remove(tipoProducto);
                 marca = em.merge(marca);
             }
-            Tamaño tamaño = tipoProducto.getTamaño();
-            if (tamaño != null) {
-                tamaño.getTipoProductoList().remove(tipoProducto);
-                tamaño = em.merge(tamaño);
+            Tamanho tamanho = tipoProducto.getTamanho();
+            if (tamanho != null) {
+                tamanho.getTipoProductoList().remove(tipoProducto);
+                tamanho = em.merge(tamanho);
             }
             em.remove(tipoProducto);
             em.getTransaction().commit();

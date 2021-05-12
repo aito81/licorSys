@@ -10,7 +10,6 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import py.com.abiti.licorsys.model.Persona;
 import py.com.abiti.licorsys.model.Egreso;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,15 +17,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import py.com.abiti.licorsys.controller.exceptions.IllegalOrphanException;
 import py.com.abiti.licorsys.controller.exceptions.NonexistentEntityException;
-import py.com.abiti.licorsys.model.Usuario;
+import py.com.abiti.licorsys.model.TipoEgreso;
 
 /**
  *
  * @author Santi
  */
-public class UsuarioJpaController implements Serializable {
+public class TipoEgresoJpaController implements Serializable {
 
-    public UsuarioJpaController(EntityManagerFactory emf) {
+    public TipoEgresoJpaController(EntityManagerFactory emf) {
         this.emf = emf;
     }
     private EntityManagerFactory emf = null;
@@ -35,37 +34,28 @@ public class UsuarioJpaController implements Serializable {
         return emf.createEntityManager();
     }
 
-    public void create(Usuario usuario) {
-        if (usuario.getEgresoList() == null) {
-            usuario.setEgresoList(new ArrayList<Egreso>());
+    public void create(TipoEgreso tipoEgreso) {
+        if (tipoEgreso.getEgresoList() == null) {
+            tipoEgreso.setEgresoList(new ArrayList<Egreso>());
         }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Persona persona = usuario.getPersona();
-            if (persona != null) {
-                persona = em.getReference(persona.getClass(), persona.getPersona());
-                usuario.setPersona(persona);
-            }
             List<Egreso> attachedEgresoList = new ArrayList<Egreso>();
-            for (Egreso egresoListEgresoToAttach : usuario.getEgresoList()) {
+            for (Egreso egresoListEgresoToAttach : tipoEgreso.getEgresoList()) {
                 egresoListEgresoToAttach = em.getReference(egresoListEgresoToAttach.getClass(), egresoListEgresoToAttach.getEgreso());
                 attachedEgresoList.add(egresoListEgresoToAttach);
             }
-            usuario.setEgresoList(attachedEgresoList);
-            em.persist(usuario);
-            if (persona != null) {
-                persona.getUsuarioList().add(usuario);
-                persona = em.merge(persona);
-            }
-            for (Egreso egresoListEgreso : usuario.getEgresoList()) {
-                Usuario oldUsuarioOfEgresoListEgreso = egresoListEgreso.getUsuario();
-                egresoListEgreso.setUsuario(usuario);
+            tipoEgreso.setEgresoList(attachedEgresoList);
+            em.persist(tipoEgreso);
+            for (Egreso egresoListEgreso : tipoEgreso.getEgresoList()) {
+                TipoEgreso oldTipoEgresoOfEgresoListEgreso = egresoListEgreso.getTipoEgreso();
+                egresoListEgreso.setTipoEgreso(tipoEgreso);
                 egresoListEgreso = em.merge(egresoListEgreso);
-                if (oldUsuarioOfEgresoListEgreso != null) {
-                    oldUsuarioOfEgresoListEgreso.getEgresoList().remove(egresoListEgreso);
-                    oldUsuarioOfEgresoListEgreso = em.merge(oldUsuarioOfEgresoListEgreso);
+                if (oldTipoEgresoOfEgresoListEgreso != null) {
+                    oldTipoEgresoOfEgresoListEgreso.getEgresoList().remove(egresoListEgreso);
+                    oldTipoEgresoOfEgresoListEgreso = em.merge(oldTipoEgresoOfEgresoListEgreso);
                 }
             }
             em.getTransaction().commit();
@@ -76,31 +66,25 @@ public class UsuarioJpaController implements Serializable {
         }
     }
 
-    public void edit(Usuario usuario) throws IllegalOrphanException, NonexistentEntityException, Exception {
+    public void edit(TipoEgreso tipoEgreso) throws IllegalOrphanException, NonexistentEntityException, Exception {
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Usuario persistentUsuario = em.find(Usuario.class, usuario.getUsuario());
-            Persona personaOld = persistentUsuario.getPersona();
-            Persona personaNew = usuario.getPersona();
-            List<Egreso> egresoListOld = persistentUsuario.getEgresoList();
-            List<Egreso> egresoListNew = usuario.getEgresoList();
+            TipoEgreso persistentTipoEgreso = em.find(TipoEgreso.class, tipoEgreso.getTipoEgreso());
+            List<Egreso> egresoListOld = persistentTipoEgreso.getEgresoList();
+            List<Egreso> egresoListNew = tipoEgreso.getEgresoList();
             List<String> illegalOrphanMessages = null;
             for (Egreso egresoListOldEgreso : egresoListOld) {
                 if (!egresoListNew.contains(egresoListOldEgreso)) {
                     if (illegalOrphanMessages == null) {
                         illegalOrphanMessages = new ArrayList<String>();
                     }
-                    illegalOrphanMessages.add("You must retain Egreso " + egresoListOldEgreso + " since its usuario field is not nullable.");
+                    illegalOrphanMessages.add("You must retain Egreso " + egresoListOldEgreso + " since its tipoEgreso field is not nullable.");
                 }
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
-            }
-            if (personaNew != null) {
-                personaNew = em.getReference(personaNew.getClass(), personaNew.getPersona());
-                usuario.setPersona(personaNew);
             }
             List<Egreso> attachedEgresoListNew = new ArrayList<Egreso>();
             for (Egreso egresoListNewEgresoToAttach : egresoListNew) {
@@ -108,24 +92,16 @@ public class UsuarioJpaController implements Serializable {
                 attachedEgresoListNew.add(egresoListNewEgresoToAttach);
             }
             egresoListNew = attachedEgresoListNew;
-            usuario.setEgresoList(egresoListNew);
-            usuario = em.merge(usuario);
-            if (personaOld != null && !personaOld.equals(personaNew)) {
-                personaOld.getUsuarioList().remove(usuario);
-                personaOld = em.merge(personaOld);
-            }
-            if (personaNew != null && !personaNew.equals(personaOld)) {
-                personaNew.getUsuarioList().add(usuario);
-                personaNew = em.merge(personaNew);
-            }
+            tipoEgreso.setEgresoList(egresoListNew);
+            tipoEgreso = em.merge(tipoEgreso);
             for (Egreso egresoListNewEgreso : egresoListNew) {
                 if (!egresoListOld.contains(egresoListNewEgreso)) {
-                    Usuario oldUsuarioOfEgresoListNewEgreso = egresoListNewEgreso.getUsuario();
-                    egresoListNewEgreso.setUsuario(usuario);
+                    TipoEgreso oldTipoEgresoOfEgresoListNewEgreso = egresoListNewEgreso.getTipoEgreso();
+                    egresoListNewEgreso.setTipoEgreso(tipoEgreso);
                     egresoListNewEgreso = em.merge(egresoListNewEgreso);
-                    if (oldUsuarioOfEgresoListNewEgreso != null && !oldUsuarioOfEgresoListNewEgreso.equals(usuario)) {
-                        oldUsuarioOfEgresoListNewEgreso.getEgresoList().remove(egresoListNewEgreso);
-                        oldUsuarioOfEgresoListNewEgreso = em.merge(oldUsuarioOfEgresoListNewEgreso);
+                    if (oldTipoEgresoOfEgresoListNewEgreso != null && !oldTipoEgresoOfEgresoListNewEgreso.equals(tipoEgreso)) {
+                        oldTipoEgresoOfEgresoListNewEgreso.getEgresoList().remove(egresoListNewEgreso);
+                        oldTipoEgresoOfEgresoListNewEgreso = em.merge(oldTipoEgresoOfEgresoListNewEgreso);
                     }
                 }
             }
@@ -133,9 +109,9 @@ public class UsuarioJpaController implements Serializable {
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
             if (msg == null || msg.length() == 0) {
-                Integer id = usuario.getUsuario();
-                if (findUsuario(id) == null) {
-                    throw new NonexistentEntityException("The usuario with id " + id + " no longer exists.");
+                Integer id = tipoEgreso.getTipoEgreso();
+                if (findTipoEgreso(id) == null) {
+                    throw new NonexistentEntityException("The tipoEgreso with id " + id + " no longer exists.");
                 }
             }
             throw ex;
@@ -151,30 +127,25 @@ public class UsuarioJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
-            Usuario usuario;
+            TipoEgreso tipoEgreso;
             try {
-                usuario = em.getReference(Usuario.class, id);
-                usuario.getUsuario();
+                tipoEgreso = em.getReference(TipoEgreso.class, id);
+                tipoEgreso.getTipoEgreso();
             } catch (EntityNotFoundException enfe) {
-                throw new NonexistentEntityException("The usuario with id " + id + " no longer exists.", enfe);
+                throw new NonexistentEntityException("The tipoEgreso with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
-            List<Egreso> egresoListOrphanCheck = usuario.getEgresoList();
+            List<Egreso> egresoListOrphanCheck = tipoEgreso.getEgresoList();
             for (Egreso egresoListOrphanCheckEgreso : egresoListOrphanCheck) {
                 if (illegalOrphanMessages == null) {
                     illegalOrphanMessages = new ArrayList<String>();
                 }
-                illegalOrphanMessages.add("This Usuario (" + usuario + ") cannot be destroyed since the Egreso " + egresoListOrphanCheckEgreso + " in its egresoList field has a non-nullable usuario field.");
+                illegalOrphanMessages.add("This TipoEgreso (" + tipoEgreso + ") cannot be destroyed since the Egreso " + egresoListOrphanCheckEgreso + " in its egresoList field has a non-nullable tipoEgreso field.");
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
-            Persona persona = usuario.getPersona();
-            if (persona != null) {
-                persona.getUsuarioList().remove(usuario);
-                persona = em.merge(persona);
-            }
-            em.remove(usuario);
+            em.remove(tipoEgreso);
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -183,19 +154,19 @@ public class UsuarioJpaController implements Serializable {
         }
     }
 
-    public List<Usuario> findUsuarioEntities() {
-        return findUsuarioEntities(true, -1, -1);
+    public List<TipoEgreso> findTipoEgresoEntities() {
+        return findTipoEgresoEntities(true, -1, -1);
     }
 
-    public List<Usuario> findUsuarioEntities(int maxResults, int firstResult) {
-        return findUsuarioEntities(false, maxResults, firstResult);
+    public List<TipoEgreso> findTipoEgresoEntities(int maxResults, int firstResult) {
+        return findTipoEgresoEntities(false, maxResults, firstResult);
     }
 
-    private List<Usuario> findUsuarioEntities(boolean all, int maxResults, int firstResult) {
+    private List<TipoEgreso> findTipoEgresoEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
             CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-            cq.select(cq.from(Usuario.class));
+            cq.select(cq.from(TipoEgreso.class));
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);
@@ -207,20 +178,20 @@ public class UsuarioJpaController implements Serializable {
         }
     }
 
-    public Usuario findUsuario(Integer id) {
+    public TipoEgreso findTipoEgreso(Integer id) {
         EntityManager em = getEntityManager();
         try {
-            return em.find(Usuario.class, id);
+            return em.find(TipoEgreso.class, id);
         } finally {
             em.close();
         }
     }
 
-    public int getUsuarioCount() {
+    public int getTipoEgresoCount() {
         EntityManager em = getEntityManager();
         try {
             CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-            Root<Usuario> rt = cq.from(Usuario.class);
+            Root<TipoEgreso> rt = cq.from(TipoEgreso.class);
             cq.select(em.getCriteriaBuilder().count(rt));
             Query q = em.createQuery(cq);
             return ((Long) q.getSingleResult()).intValue();

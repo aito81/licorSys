@@ -10,7 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import py.com.abiti.licorsys.model.Usuario;
+import py.com.abiti.licorsys.model.Empleado;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -18,10 +18,11 @@ import javax.persistence.EntityManagerFactory;
 import py.com.abiti.licorsys.controller.exceptions.IllegalOrphanException;
 import py.com.abiti.licorsys.controller.exceptions.NonexistentEntityException;
 import py.com.abiti.licorsys.model.Persona;
+import py.com.abiti.licorsys.model.Usuario;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 public class PersonaJpaController implements Serializable {
 
@@ -35,6 +36,9 @@ public class PersonaJpaController implements Serializable {
     }
 
     public void create(Persona persona) {
+        if (persona.getEmpleadoList() == null) {
+            persona.setEmpleadoList(new ArrayList<Empleado>());
+        }
         if (persona.getUsuarioList() == null) {
             persona.setUsuarioList(new ArrayList<Usuario>());
         }
@@ -42,6 +46,12 @@ public class PersonaJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Empleado> attachedEmpleadoList = new ArrayList<Empleado>();
+            for (Empleado empleadoListEmpleadoToAttach : persona.getEmpleadoList()) {
+                empleadoListEmpleadoToAttach = em.getReference(empleadoListEmpleadoToAttach.getClass(), empleadoListEmpleadoToAttach.getEmpleado());
+                attachedEmpleadoList.add(empleadoListEmpleadoToAttach);
+            }
+            persona.setEmpleadoList(attachedEmpleadoList);
             List<Usuario> attachedUsuarioList = new ArrayList<Usuario>();
             for (Usuario usuarioListUsuarioToAttach : persona.getUsuarioList()) {
                 usuarioListUsuarioToAttach = em.getReference(usuarioListUsuarioToAttach.getClass(), usuarioListUsuarioToAttach.getUsuario());
@@ -49,6 +59,15 @@ public class PersonaJpaController implements Serializable {
             }
             persona.setUsuarioList(attachedUsuarioList);
             em.persist(persona);
+            for (Empleado empleadoListEmpleado : persona.getEmpleadoList()) {
+                Persona oldPersonaOfEmpleadoListEmpleado = empleadoListEmpleado.getPersona();
+                empleadoListEmpleado.setPersona(persona);
+                empleadoListEmpleado = em.merge(empleadoListEmpleado);
+                if (oldPersonaOfEmpleadoListEmpleado != null) {
+                    oldPersonaOfEmpleadoListEmpleado.getEmpleadoList().remove(empleadoListEmpleado);
+                    oldPersonaOfEmpleadoListEmpleado = em.merge(oldPersonaOfEmpleadoListEmpleado);
+                }
+            }
             for (Usuario usuarioListUsuario : persona.getUsuarioList()) {
                 Persona oldPersonaOfUsuarioListUsuario = usuarioListUsuario.getPersona();
                 usuarioListUsuario.setPersona(persona);
@@ -72,9 +91,19 @@ public class PersonaJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Persona persistentPersona = em.find(Persona.class, persona.getPersona());
+            List<Empleado> empleadoListOld = persistentPersona.getEmpleadoList();
+            List<Empleado> empleadoListNew = persona.getEmpleadoList();
             List<Usuario> usuarioListOld = persistentPersona.getUsuarioList();
             List<Usuario> usuarioListNew = persona.getUsuarioList();
             List<String> illegalOrphanMessages = null;
+            for (Empleado empleadoListOldEmpleado : empleadoListOld) {
+                if (!empleadoListNew.contains(empleadoListOldEmpleado)) {
+                    if (illegalOrphanMessages == null) {
+                        illegalOrphanMessages = new ArrayList<String>();
+                    }
+                    illegalOrphanMessages.add("You must retain Empleado " + empleadoListOldEmpleado + " since its persona field is not nullable.");
+                }
+            }
             for (Usuario usuarioListOldUsuario : usuarioListOld) {
                 if (!usuarioListNew.contains(usuarioListOldUsuario)) {
                     if (illegalOrphanMessages == null) {
@@ -86,6 +115,13 @@ public class PersonaJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            List<Empleado> attachedEmpleadoListNew = new ArrayList<Empleado>();
+            for (Empleado empleadoListNewEmpleadoToAttach : empleadoListNew) {
+                empleadoListNewEmpleadoToAttach = em.getReference(empleadoListNewEmpleadoToAttach.getClass(), empleadoListNewEmpleadoToAttach.getEmpleado());
+                attachedEmpleadoListNew.add(empleadoListNewEmpleadoToAttach);
+            }
+            empleadoListNew = attachedEmpleadoListNew;
+            persona.setEmpleadoList(empleadoListNew);
             List<Usuario> attachedUsuarioListNew = new ArrayList<Usuario>();
             for (Usuario usuarioListNewUsuarioToAttach : usuarioListNew) {
                 usuarioListNewUsuarioToAttach = em.getReference(usuarioListNewUsuarioToAttach.getClass(), usuarioListNewUsuarioToAttach.getUsuario());
@@ -94,6 +130,17 @@ public class PersonaJpaController implements Serializable {
             usuarioListNew = attachedUsuarioListNew;
             persona.setUsuarioList(usuarioListNew);
             persona = em.merge(persona);
+            for (Empleado empleadoListNewEmpleado : empleadoListNew) {
+                if (!empleadoListOld.contains(empleadoListNewEmpleado)) {
+                    Persona oldPersonaOfEmpleadoListNewEmpleado = empleadoListNewEmpleado.getPersona();
+                    empleadoListNewEmpleado.setPersona(persona);
+                    empleadoListNewEmpleado = em.merge(empleadoListNewEmpleado);
+                    if (oldPersonaOfEmpleadoListNewEmpleado != null && !oldPersonaOfEmpleadoListNewEmpleado.equals(persona)) {
+                        oldPersonaOfEmpleadoListNewEmpleado.getEmpleadoList().remove(empleadoListNewEmpleado);
+                        oldPersonaOfEmpleadoListNewEmpleado = em.merge(oldPersonaOfEmpleadoListNewEmpleado);
+                    }
+                }
+            }
             for (Usuario usuarioListNewUsuario : usuarioListNew) {
                 if (!usuarioListOld.contains(usuarioListNewUsuario)) {
                     Persona oldPersonaOfUsuarioListNewUsuario = usuarioListNewUsuario.getPersona();
@@ -135,6 +182,13 @@ public class PersonaJpaController implements Serializable {
                 throw new NonexistentEntityException("The persona with id " + id + " no longer exists.", enfe);
             }
             List<String> illegalOrphanMessages = null;
+            List<Empleado> empleadoListOrphanCheck = persona.getEmpleadoList();
+            for (Empleado empleadoListOrphanCheckEmpleado : empleadoListOrphanCheck) {
+                if (illegalOrphanMessages == null) {
+                    illegalOrphanMessages = new ArrayList<String>();
+                }
+                illegalOrphanMessages.add("This Persona (" + persona + ") cannot be destroyed since the Empleado " + empleadoListOrphanCheckEmpleado + " in its empleadoList field has a non-nullable persona field.");
+            }
             List<Usuario> usuarioListOrphanCheck = persona.getUsuarioList();
             for (Usuario usuarioListOrphanCheckUsuario : usuarioListOrphanCheck) {
                 if (illegalOrphanMessages == null) {

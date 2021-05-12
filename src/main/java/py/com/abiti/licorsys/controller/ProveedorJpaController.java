@@ -6,19 +6,21 @@
 package py.com.abiti.licorsys.controller;
 
 import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.abiti.licorsys.model.Egreso;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import py.com.abiti.licorsys.controller.exceptions.NonexistentEntityException;
 import py.com.abiti.licorsys.model.Proveedor;
 
 /**
  *
- * @author matia
+ * @author Santi
  */
 public class ProveedorJpaController implements Serializable {
 
@@ -32,11 +34,29 @@ public class ProveedorJpaController implements Serializable {
     }
 
     public void create(Proveedor proveedor) {
+        if (proveedor.getEgresoList() == null) {
+            proveedor.setEgresoList(new ArrayList<Egreso>());
+        }
         EntityManager em = null;
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            List<Egreso> attachedEgresoList = new ArrayList<Egreso>();
+            for (Egreso egresoListEgresoToAttach : proveedor.getEgresoList()) {
+                egresoListEgresoToAttach = em.getReference(egresoListEgresoToAttach.getClass(), egresoListEgresoToAttach.getEgreso());
+                attachedEgresoList.add(egresoListEgresoToAttach);
+            }
+            proveedor.setEgresoList(attachedEgresoList);
             em.persist(proveedor);
+            for (Egreso egresoListEgreso : proveedor.getEgresoList()) {
+                Proveedor oldProveedorOfEgresoListEgreso = egresoListEgreso.getProveedor();
+                egresoListEgreso.setProveedor(proveedor);
+                egresoListEgreso = em.merge(egresoListEgreso);
+                if (oldProveedorOfEgresoListEgreso != null) {
+                    oldProveedorOfEgresoListEgreso.getEgresoList().remove(egresoListEgreso);
+                    oldProveedorOfEgresoListEgreso = em.merge(oldProveedorOfEgresoListEgreso);
+                }
+            }
             em.getTransaction().commit();
         } finally {
             if (em != null) {
@@ -50,7 +70,34 @@ public class ProveedorJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Proveedor persistentProveedor = em.find(Proveedor.class, proveedor.getProveedor());
+            List<Egreso> egresoListOld = persistentProveedor.getEgresoList();
+            List<Egreso> egresoListNew = proveedor.getEgresoList();
+            List<Egreso> attachedEgresoListNew = new ArrayList<Egreso>();
+            for (Egreso egresoListNewEgresoToAttach : egresoListNew) {
+                egresoListNewEgresoToAttach = em.getReference(egresoListNewEgresoToAttach.getClass(), egresoListNewEgresoToAttach.getEgreso());
+                attachedEgresoListNew.add(egresoListNewEgresoToAttach);
+            }
+            egresoListNew = attachedEgresoListNew;
+            proveedor.setEgresoList(egresoListNew);
             proveedor = em.merge(proveedor);
+            for (Egreso egresoListOldEgreso : egresoListOld) {
+                if (!egresoListNew.contains(egresoListOldEgreso)) {
+                    egresoListOldEgreso.setProveedor(null);
+                    egresoListOldEgreso = em.merge(egresoListOldEgreso);
+                }
+            }
+            for (Egreso egresoListNewEgreso : egresoListNew) {
+                if (!egresoListOld.contains(egresoListNewEgreso)) {
+                    Proveedor oldProveedorOfEgresoListNewEgreso = egresoListNewEgreso.getProveedor();
+                    egresoListNewEgreso.setProveedor(proveedor);
+                    egresoListNewEgreso = em.merge(egresoListNewEgreso);
+                    if (oldProveedorOfEgresoListNewEgreso != null && !oldProveedorOfEgresoListNewEgreso.equals(proveedor)) {
+                        oldProveedorOfEgresoListNewEgreso.getEgresoList().remove(egresoListNewEgreso);
+                        oldProveedorOfEgresoListNewEgreso = em.merge(oldProveedorOfEgresoListNewEgreso);
+                    }
+                }
+            }
             em.getTransaction().commit();
         } catch (Exception ex) {
             String msg = ex.getLocalizedMessage();
@@ -79,6 +126,11 @@ public class ProveedorJpaController implements Serializable {
                 proveedor.getProveedor();
             } catch (EntityNotFoundException enfe) {
                 throw new NonexistentEntityException("The proveedor with id " + id + " no longer exists.", enfe);
+            }
+            List<Egreso> egresoList = proveedor.getEgresoList();
+            for (Egreso egresoListEgreso : egresoList) {
+                egresoListEgreso.setProveedor(null);
+                egresoListEgreso = em.merge(egresoListEgreso);
             }
             em.remove(proveedor);
             em.getTransaction().commit();
