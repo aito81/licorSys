@@ -10,6 +10,7 @@ import javax.persistence.Query;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import py.com.abiti.licorsys.model.Genero;
 import py.com.abiti.licorsys.model.Empleado;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,11 @@ public class PersonaJpaController implements Serializable {
         try {
             em = getEntityManager();
             em.getTransaction().begin();
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero = em.getReference(genero.getClass(), genero.getGenero());
+                persona.setGenero(genero);
+            }
             List<Empleado> attachedEmpleadoList = new ArrayList<Empleado>();
             for (Empleado empleadoListEmpleadoToAttach : persona.getEmpleadoList()) {
                 empleadoListEmpleadoToAttach = em.getReference(empleadoListEmpleadoToAttach.getClass(), empleadoListEmpleadoToAttach.getEmpleado());
@@ -59,6 +65,10 @@ public class PersonaJpaController implements Serializable {
             }
             persona.setUsuarioList(attachedUsuarioList);
             em.persist(persona);
+            if (genero != null) {
+                genero.getPersonaList().add(persona);
+                genero = em.merge(genero);
+            }
             for (Empleado empleadoListEmpleado : persona.getEmpleadoList()) {
                 Persona oldPersonaOfEmpleadoListEmpleado = empleadoListEmpleado.getPersona();
                 empleadoListEmpleado.setPersona(persona);
@@ -91,6 +101,8 @@ public class PersonaJpaController implements Serializable {
             em = getEntityManager();
             em.getTransaction().begin();
             Persona persistentPersona = em.find(Persona.class, persona.getPersona());
+            Genero generoOld = persistentPersona.getGenero();
+            Genero generoNew = persona.getGenero();
             List<Empleado> empleadoListOld = persistentPersona.getEmpleadoList();
             List<Empleado> empleadoListNew = persona.getEmpleadoList();
             List<Usuario> usuarioListOld = persistentPersona.getUsuarioList();
@@ -115,6 +127,10 @@ public class PersonaJpaController implements Serializable {
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
             }
+            if (generoNew != null) {
+                generoNew = em.getReference(generoNew.getClass(), generoNew.getGenero());
+                persona.setGenero(generoNew);
+            }
             List<Empleado> attachedEmpleadoListNew = new ArrayList<Empleado>();
             for (Empleado empleadoListNewEmpleadoToAttach : empleadoListNew) {
                 empleadoListNewEmpleadoToAttach = em.getReference(empleadoListNewEmpleadoToAttach.getClass(), empleadoListNewEmpleadoToAttach.getEmpleado());
@@ -130,6 +146,14 @@ public class PersonaJpaController implements Serializable {
             usuarioListNew = attachedUsuarioListNew;
             persona.setUsuarioList(usuarioListNew);
             persona = em.merge(persona);
+            if (generoOld != null && !generoOld.equals(generoNew)) {
+                generoOld.getPersonaList().remove(persona);
+                generoOld = em.merge(generoOld);
+            }
+            if (generoNew != null && !generoNew.equals(generoOld)) {
+                generoNew.getPersonaList().add(persona);
+                generoNew = em.merge(generoNew);
+            }
             for (Empleado empleadoListNewEmpleado : empleadoListNew) {
                 if (!empleadoListOld.contains(empleadoListNewEmpleado)) {
                     Persona oldPersonaOfEmpleadoListNewEmpleado = empleadoListNewEmpleado.getPersona();
@@ -198,6 +222,11 @@ public class PersonaJpaController implements Serializable {
             }
             if (illegalOrphanMessages != null) {
                 throw new IllegalOrphanException(illegalOrphanMessages);
+            }
+            Genero genero = persona.getGenero();
+            if (genero != null) {
+                genero.getPersonaList().remove(persona);
+                genero = em.merge(genero);
             }
             em.remove(persona);
             em.getTransaction().commit();

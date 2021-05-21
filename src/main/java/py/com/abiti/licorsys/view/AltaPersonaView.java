@@ -31,6 +31,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 		mainLayout = new VerticalLayout();
 		
 		setCompositionRoot(mainLayout);
+		
 		txtNombre = new TextField();
 		btnSalir = new Button();
 		btnSalir.setCaption("saliforro");

@@ -8,7 +8,7 @@
     <class>py.com.abiti.licorsys.model.Producto</class>
     <class>py.com.abiti.licorsys.model.TipoProducto</class>
     <class>py.com.abiti.licorsys.model.Marca</class>
-    <class>py.com.abiti.licorsys.model.Tamaño</class>
+    
     <class>py.com.abiti.licorsys.model.Cargo</class>
     <class>py.com.abiti.licorsys.model.Tamanho</class>
     <class>py.com.abiti.licorsys.model.Ingreso</class>
@@ -17,6 +17,7 @@
     <class>py.com.abiti.licorsys.model.Turno</class>
     <class>py.com.abiti.licorsys.model.Transaccion</class>
     <class>py.com.abiti.licorsys.model.Empleado</class>
+    <class>py.com.abiti.licorsys.model.Genero</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/BodegaDB"/>
       <property name="javax.persistence.jdbc.user" value="postgres"/>
