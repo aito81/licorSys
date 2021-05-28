@@ -8,9 +8,14 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import py.com.abiti.licorsys.jpa.JpaPersona;
+import py.com.abiti.licorsys.model.Genero;
+import py.com.abiti.licorsys.model.Persona;
+import py.com.abiti.licorsys.util.JpaUtil;
 import py.com.abiti.licorsys.util.ViewConfig;
 
 
@@ -34,6 +39,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private DateField dfFecNac;
 	private ComboBox  cbxGenero;
 	
+	private JpaPersona jpaPersona = new JpaPersona(JpaUtil.getEntityManagerFactory());
 	
 	
 	
@@ -49,11 +55,34 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		crearComponentes();
 		
+		btnGuardar.addClickListener(e -> guardarPersona() );
+		
+		mostrarComponentes();
+		
+		
+		
+		
+		
+		
+	}
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+	private void mostrarComponentes() {
+
 		mainLayout.addComponent(txtNombre);
-		
-		
-		
-		
 		mainLayout.addComponents(txtNombre);
 		mainLayout.addComponent(txtApellido);
 		mainLayout.addComponent(txtDireccion);
@@ -71,10 +100,56 @@ public class AltaPersonaView extends CustomComponent implements View {
 		mainLayout.addComponent(BotonLayout); 
 		BotonLayout.addComponents(btnSalir, btnAdd);
 		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private void guardarPersona() {
+		
+		Persona addPersona = new Persona();
+		addPersona.setNombre(txtNombre.getValue());
+		addPersona.setApellido(txtApellido.getValue());
+		addPersona.setDireccion(txtDireccion.getValue());
+		addPersona.setNumeroDocumento(txtNroDoc.getValue());
+		addPersona.setRuc(txtRuc.getValue());
+		addPersona.setTelefono(txtTelefono.getValue());
+		Genero genero = new Genero();
+		genero.setGenero(1);
+		genero.setDescripcion("MASCULINO");
+		addPersona.setGenero(genero);
+		
+		try {
+			
+			jpaPersona.create(addPersona);
+			
+		} catch (Exception e) {
+			
+			Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
+		}
 		
 		
 		
 	}
+
+
+
+
+
+
+
+
 
 
 
