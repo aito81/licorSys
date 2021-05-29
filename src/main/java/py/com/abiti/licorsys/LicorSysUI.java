@@ -5,6 +5,7 @@ import javax.servlet.annotation.WebServlet;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.vaadin.annotations.Theme;
+import com.vaadin.annotations.Title;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -33,6 +34,7 @@ import py.com.abiti.licorsys.view.Main;
  * overridden to add component to the user interface and initialize non-component functionality.
  */
 @Theme("mytheme")
+@Title("SISTEMA DE BODEGA")
 public class LicorSysUI extends UI {
 
 	private EventBus eventBus;

@@ -2,20 +2,26 @@ package py.com.abiti.licorsys.view;
 
 import org.w3c.dom.Text;
 
+import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateField;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.ItemCaptionGenerator;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.themes.ValoTheme;
 
+import py.com.abiti.licorsys.LicorSysUI;
+import py.com.abiti.licorsys.jpa.JpaGenero;
 import py.com.abiti.licorsys.jpa.JpaPersona;
 import py.com.abiti.licorsys.model.Genero;
 import py.com.abiti.licorsys.model.Persona;
 import py.com.abiti.licorsys.util.JpaUtil;
+import py.com.abiti.licorsys.util.StringUtils;
 import py.com.abiti.licorsys.util.ViewConfig;
 
 
@@ -28,7 +34,6 @@ public class AltaPersonaView extends CustomComponent implements View {
 	
 	private Button btnGuardar; 
 	private Button btnSalir;
-	private Button btnAdd;
 	
 	private TextField txtNombre;
 	private TextField txtApellido;
@@ -37,9 +42,11 @@ public class AltaPersonaView extends CustomComponent implements View {
 	private TextField txtRuc;
 	private TextField txtTelefono;
 	private DateField dfFecNac;
-	private ComboBox  cbxGenero;
+	private ComboBox<Genero>  cbxGenero;
 	
 	private JpaPersona jpaPersona = new JpaPersona(JpaUtil.getEntityManagerFactory());
+	private JpaGenero jpaGenero = new JpaGenero(JpaUtil.getEntityManagerFactory());
+	 
 	
 	
 	
@@ -93,12 +100,10 @@ public class AltaPersonaView extends CustomComponent implements View {
 		mainLayout.addComponent(cbxGenero);
 		
 		
-		mainLayout.addComponent(btnGuardar);
-		mainLayout.addComponent(btnSalir);
-		mainLayout.addComponent(btnAdd);
+		BotonLayout.addComponents(btnGuardar, btnSalir);
 		
 		mainLayout.addComponent(BotonLayout); 
-		BotonLayout.addComponents(btnSalir, btnAdd);
+		
 		
 	}
 
@@ -118,21 +123,32 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 	private void guardarPersona() {
 		
+		if (controlardatos() == false) {
+			
+			return;
+			
+		}
+		
 		Persona addPersona = new Persona();
-		addPersona.setNombre(txtNombre.getValue());
-		addPersona.setApellido(txtApellido.getValue());
-		addPersona.setDireccion(txtDireccion.getValue());
+		addPersona.setNombre(txtNombre.getValue().toUpperCase());
+		addPersona.setApellido(txtApellido.getValue().toUpperCase());
+		addPersona.setDireccion(txtDireccion.getValue().toUpperCase());
 		addPersona.setNumeroDocumento(txtNroDoc.getValue());
 		addPersona.setRuc(txtRuc.getValue());
 		addPersona.setTelefono(txtTelefono.getValue());
-		Genero genero = new Genero();
-		genero.setGenero(1);
-		genero.setDescripcion("MASCULINO");
-		addPersona.setGenero(genero);
+		addPersona.setGenero(cbxGenero.getValue());
+		
+		if (!dfFecNac.isEmpty()) {
+			
+			addPersona.setFechaNacimiento(StringUtils.convertirLocalDateToDate(dfFecNac.getValue()));
+			
+		}
 		
 		try {
 			
 			jpaPersona.create(addPersona);
+			
+			Notification.show("Persona agregada correctamente.");
 			
 		} catch (Exception e) {
 			
@@ -141,6 +157,58 @@ public class AltaPersonaView extends CustomComponent implements View {
 		
 		
 		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private boolean controlardatos() {
+		
+		if (txtNombre.getValue().isEmpty()) {
+			
+			Notification.show("El nombre no puede quedar vacio", Notification.TYPE_WARNING_MESSAGE);
+			txtNombre.focus();
+			return false;
+			
+		}
+		
+		if (txtApellido.getValue().isEmpty()) {
+			
+			Notification.show("El apellido no puede quedar vacio", Notification.TYPE_WARNING_MESSAGE);
+			txtApellido.focus();
+			return false;
+			
+		}
+		
+		if (txtDireccion.getValue().isEmpty()) {
+			
+			Notification.show("La direccion no puede quedar vacia", Notification.TYPE_WARNING_MESSAGE);
+			txtDireccion.focus();
+			return false;
+			
+		}
+		
+		if (txtNroDoc.getValue().isEmpty()) {
+			
+			Notification.show("el numero de documento no puede quedar vacio", Notification.TYPE_ERROR_MESSAGE);
+			txtNroDoc.focus();
+			return false;
+			
+			
+		}
+		
+		return true;
 	}
 
 
@@ -173,27 +241,67 @@ public class AltaPersonaView extends CustomComponent implements View {
 		txtTelefono.setCaption("TELEFONO");
 		dfFecNac = new DateField();
 		dfFecNac.setCaption("FECHA NACIMIENTO");
-		cbxGenero = new ComboBox();
+		cbxGenero = new ComboBox<Genero>();
 		cbxGenero.setCaption("GENERO");
-		
+		cargarCombo();
 		
 		
 		btnSalir = new Button();
 		btnSalir.setCaption("salir");
-		btnAdd = new Button();
-		
-		
-		btnAdd.setCaption("Add");
-	
-		
-		
-		
+		btnSalir.setStyleName(ValoTheme.BUTTON_DANGER);
 		
 		btnGuardar = new Button();
 		btnGuardar.setCaption("Guardar");
+		btnGuardar.setStyleName(ValoTheme.BUTTON_PRIMARY);
+		
+		
+		
+		btnSalir.addClickListener(e -> salir());
 		
 		
 
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private void salir() {
+		
+		LicorSysUI.getCurrent().getNavigator().navigateTo("");
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private void cargarCombo() {
+		
+		cbxGenero.setItems(jpaGenero.findGeneroEntities());
+		cbxGenero.setEmptySelectionAllowed(false);
+		cbxGenero.setItemCaptionGenerator(gen -> gen.getDescripcion());
 		
 	}
 	
