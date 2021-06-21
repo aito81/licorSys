@@ -82,7 +82,8 @@ public class PrincipalView extends CustomComponent implements View {
 		btn7.addClickListener(event -> MiesysUI.getCurrent().getNavigator().navigateTo("hanPersona"));
 		*/
 		
-		btn1.addClickListener(e-> LicorSysUI.getCurrent().getNavigator().navigateTo("alta"));
+		btn1.addClickListener(e-> LicorSysUI.getCurrent().getNavigator().navigateTo("altaPersona"));
+		btn2.addClickListener(e -> LicorSysUI.getCurrent().getNavigator().navigateTo("altaUsuario"));
 		datosLayout.addComponent(botonLayout);
 		datosLayout.setComponentAlignment(botonLayout, Alignment.MIDDLE_CENTER);
 			
@@ -168,7 +169,7 @@ public class PrincipalView extends CustomComponent implements View {
 		
 		// btn2
 		btn2 = new Button();
-		btn2.setCaption("Alta de Miembro");
+		btn2.setCaption("Alta de Usuario");
 		//btn2.setImmediate(true);
 		btn2.setWidth("-1px");
 		btn2.setHeight("-1px");

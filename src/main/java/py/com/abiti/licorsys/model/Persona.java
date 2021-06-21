@@ -207,5 +207,10 @@ public class Persona implements Serializable {
     public String toString() {
         return "py.com.abiti.licorsys.model.Persona[ persona=" + persona + " ]";
     }
+
+	public Object getDescripcion() {
+		// TODO Auto-generated method stub
+		return null;
+	}
     
 }

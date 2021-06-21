@@ -133,5 +133,10 @@ public class Usuario implements Serializable {
     public String toString() {
         return "py.com.abiti.licorsys.model.Usuario[ usuario=" + usuario + " ]";
     }
+
+	public void setRepetir(String value) {
+		// TODO Auto-generated method stub
+		
+	}
     
 }

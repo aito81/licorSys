@@ -25,7 +25,7 @@ import py.com.abiti.licorsys.util.StringUtils;
 import py.com.abiti.licorsys.util.ViewConfig;
 
 
-@ViewConfig(uri = "alta", displayName = "persona")
+@ViewConfig(uri = "altaPersona", displayName = "persona")
 public class AltaPersonaView extends CustomComponent implements View {
 	
 	private VerticalLayout mainLayout;
@@ -150,11 +150,41 @@ public class AltaPersonaView extends CustomComponent implements View {
 			
 			Notification.show("Persona agregada correctamente.");
 			
+			limpiarCampos();
+			
 		} catch (Exception e) {
 			
 			Notification.show(e.getMessage(), Notification.TYPE_ERROR_MESSAGE);
 		}
 		
+		
+		
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	private void limpiarCampos() {
+
+		txtNombre.clear();
+		txtApellido.clear();
+		txtDireccion.clear();
+		txtNroDoc.clear();
+		txtRuc.clear();
+		txtTelefono.clear();
+		cbxGenero.clear();
+		dfFecNac.clear();
 		
 		
 	}
@@ -223,7 +253,7 @@ public class AltaPersonaView extends CustomComponent implements View {
 
 
 
-
+ 
 
 	private void crearComponentes() {
 
