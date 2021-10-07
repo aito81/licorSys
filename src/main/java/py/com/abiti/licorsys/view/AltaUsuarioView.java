@@ -230,6 +230,7 @@ public class AltaUsuarioView  extends CustomComponent implements View {
 
 
 
+	
 
 	private String nombre(Persona per) {
 
